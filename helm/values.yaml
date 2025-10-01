@@ -1,0 +1,9 @@
+replicaCount: 2
+
+image:
+  repository: <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/myapp
+  tag: latest   # Jenkinsfile overrides this with prod/staging
+
+service:
+  type: ClusterIP
+  port: 8080
