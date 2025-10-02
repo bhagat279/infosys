@@ -1,5 +1,8 @@
 pipeline {
     agent any
+     tools {
+            maven 'Maven3' // yaha Jenkins tool ka name
+        }
     environment {
         AWS_ACCOUNT_ID = "339712886979"
         AWS_REGION = "ap-south-1"
@@ -13,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'dev', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
+                git branch: '*/dev', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
             }
         }
 
