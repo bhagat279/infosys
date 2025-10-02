@@ -26,19 +26,36 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
-            steps {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']])
-                script {
-                    sh """
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
-                    docker build -t springboot-app .
-                    docker tag springboot-app:latest $IMAGE_REPO:latest
-                    docker push $IMAGE_REPO:latest
-                    """
-                }
+//         stage('Docker Build & Push') {
+//             steps {
+//             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']])
+//                 script {
+//                     sh """
+//                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
+//                     docker build -t springboot-app .
+//                     docker tag springboot-app:latest $IMAGE_REPO:latest
+//                     docker push $IMAGE_REPO:latest
+//                     """
+//                 }
+//             }
+//         }
+
+stage('Docker Build & Push') {
+    steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
+            // body ke andar script block hona chahiye
+            script {
+                sh """
+                aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
+                docker build -t springboot-app .
+                docker tag springboot-app:latest $IMAGE_REPO:latest
+                docker push $IMAGE_REPO:latest
+                """
             }
         }
+    }
+}
+
 
         stage('Deploy to Staging') {
             steps {
