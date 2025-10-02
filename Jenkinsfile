@@ -1,7 +1,7 @@
 pipeline {
     agent any
      tools {
-            maven 'Maven3' // yaha Jenkins tool ka name
+            maven 'maventoo' // yaha Jenkins tool ka name
         }
     environment {
         AWS_ACCOUNT_ID = "339712886979"
