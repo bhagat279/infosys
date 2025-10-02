@@ -1,11 +1,11 @@
 replicaCount: 2
 
 image:
-  repository: <AWS_ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/springboot-app
+  repository: 339712886979.dkr.ecr.ap-south-1.amazonaws.com/springboot-app
   tag: latest
   pullPolicy: Always
 
 service:
   type: LoadBalancer
   port: 80
-  targetPort: 8080
+  targetPort: 8081

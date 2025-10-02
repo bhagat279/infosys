@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = "<AWS_ACCOUNT_ID>"
+        AWS_ACCOUNT_ID = "339712886979"
         AWS_REGION = "ap-south-1"
         IMAGE_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/springboot-app"
     }
@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop', credentialsId: 'github-token', url: 'https://github.com/<your_repo>.git'
+                git branch: 'dev', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
             }
         }
 
@@ -49,14 +49,14 @@ pipeline {
         }
 
         stage('Approval for Prod') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 input "Deploy to Production?"
             }
         }
 
         stage('Deploy to Prod') {
-            when { branch 'main' }
+            when { branch 'master' }
             steps {
                 script {
                     sh """
