@@ -1,9 +1,11 @@
 replicaCount: 2
 
 image:
-  repository: <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/myapp
-  tag: latest   # Jenkinsfile overrides this with prod/staging
+  repository: 339712886979.dkr.ecr.ap-south-1.amazonaws.com/springboot-app
+  tag: latest
+  pullPolicy: Always
 
 service:
-  type: ClusterIP
-  port: 8080
+  type: LoadBalancer
+  port: 80
+  targetPort: 8081

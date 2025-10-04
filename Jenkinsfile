@@ -1,41 +1,72 @@
 pipeline {
     agent any
+     tools {
+            maven 'maventoo' // yaha Jenkins tool ka name
+        }
+    environment {
+        AWS_ACCOUNT_ID = "339712886979"
+        AWS_REGION = "ap-south-1"
+        IMAGE_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/springboot-app"
+    }
+
+    triggers {
+        cron('0 8 * * *') // daily 8AM deploy
+    }
+
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                git branch: 'dev', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
+            }
+        }
+
+        stage('Build & Unit Test') {
+            steps {
+                sh 'mvn clean install -DskipTests'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
+            //withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']])
                 script {
-                    def branch = env.GIT_BRANCH.replaceAll("origin/", "")
-                    def tag = (branch == "main") ? "prod" : "staging"
-
                     sh """
-                    aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com
-                    docker build -t <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/myapp:${tag} .
-                    docker push <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/myapp:${tag}
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
+                    docker build -t springboot-app .
+                    docker tag springboot-app:latest $IMAGE_REPO:latest
+                    docker push $IMAGE_REPO:latest
                     """
                 }
             }
         }
 
-        stage('Deploy to EKS') {
+        stage('Deploy to Staging') {
             steps {
                 script {
-                    def branch = env.GIT_BRANCH.replaceAll("origin/", "")
-                    def namespace = (branch == "main") ? "production" : "staging"
-                    def tag = (branch == "main") ? "prod" : "staging"
-
                     sh """
-                    aws eks update-kubeconfig --region <REGION> --name <EKS_CLUSTER_NAME>
+                    helm upgrade --install staging-app ./helm \
+                      --set image.repository=$IMAGE_REPO \
+                      --set image.tag=latest
+                    """
+                }
+            }
+        }
 
-                    helm upgrade --install myapp ./helm \
-                    --namespace ${namespace} --create-namespace \
-                    --set image.repository=<AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/myapp \
-                    --set image.tag=${tag}
+        stage('Approval for Prod') {
+            when { branch 'master' }
+            steps {
+                input "Deploy to Production?"
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when { branch 'master' }
+            steps {
+                script {
+                    sh """
+                    helm upgrade --install prod-app ./helm \
+                      --set image.repository=$IMAGE_REPO \
+                      --set image.tag=latest
                     """
                 }
             }
