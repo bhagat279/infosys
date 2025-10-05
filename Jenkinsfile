@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'dev', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
+                git branch: 'develop', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
             }
         }
 
