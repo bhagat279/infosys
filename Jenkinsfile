@@ -14,14 +14,13 @@ pipeline {
         cron('0 8 * * *') // Daily 8 AM deploy
     }
 
-   stages {
-           stage('Checkout') {
-               steps {
-                   checkout scm
-               }
-           }
-
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build & Unit Test') {
             steps {
                 sh 'mvn clean install -DskipTests'
