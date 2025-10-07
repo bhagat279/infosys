@@ -1,8 +1,9 @@
 pipeline {
     agent any
-     tools {
-            maven 'maventoo' // yaha Jenkins tool ka name
-        }
+    tools {
+        maven 'maventoo'
+    }
+
     environment {
         AWS_ACCOUNT_ID = "339712886979"
         AWS_REGION = "ap-south-1"
@@ -10,16 +11,10 @@ pipeline {
     }
 
     triggers {
-        cron('0 8 * * *') // daily 8AM deploy
+        cron('0 8 * * *') // Daily 8 AM deploy
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'develop', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
-            }
-        }
-
         stage('Build & Unit Test') {
             steps {
                 sh 'mvn clean install -DskipTests'
@@ -28,28 +23,24 @@ pipeline {
 
         stage('Docker Build & Push') {
             steps {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
-                script {
-                    sh """
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
+                    sh '''
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $IMAGE_REPO
                     docker build -t springboot-app .
                     docker tag springboot-app:latest $IMAGE_REPO:latest
                     docker push $IMAGE_REPO:latest
-                    """
+                    '''
                 }
-              }
             }
         }
 
         stage('Deploy to Staging') {
             steps {
-                script {
-                    sh """
-                    helm upgrade --install staging-app ./helm \
-                      --set image.repository=$IMAGE_REPO \
-                      --set image.tag=latest
-                    """
-                }
+                sh '''
+                helm upgrade --install staging-app ./helm \
+                  --set image.repository=$IMAGE_REPO \
+                  --set image.tag=latest
+                '''
             }
         }
 
@@ -63,13 +54,11 @@ pipeline {
         stage('Deploy to Prod') {
             when { branch 'master' }
             steps {
-                script {
-                    sh """
-                    helm upgrade --install prod-app ./helm \
-                      --set image.repository=$IMAGE_REPO \
-                      --set image.tag=latest
-                    """
-                }
+                sh '''
+                helm upgrade --install prod-app ./helm \
+                  --set image.repository=$IMAGE_REPO \
+                  --set image.tag=latest
+                '''
             }
         }
     }
