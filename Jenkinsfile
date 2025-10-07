@@ -13,12 +13,12 @@ pipeline {
         cron('0 8 * * *') // daily 8AM deploy
     }
 
-    /* stages {
+    stages {
         stage('Checkout') {
             steps {
                 git branch: 'develop', credentialsId: 'github-token', url: 'https://github.com/bhagat279/infosys.git'
             }
-        } */
+        }
 
         stage('Build & Unit Test') {
             steps {
