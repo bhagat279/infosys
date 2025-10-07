@@ -14,6 +14,13 @@ pipeline {
         cron('0 8 * * *') // Daily 8 AM deploy
     }
 
+   stages {
+           stage('Checkout') {
+               steps {
+                   checkout scm
+               }
+           }
+
     stages {
         stage('Build & Unit Test') {
             steps {
