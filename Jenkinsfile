@@ -8,10 +8,11 @@ pipeline {
         AWS_ACCOUNT_ID = "339712886979"
         AWS_REGION = "ap-south-1"
         IMAGE_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/springboot-app"
+        KUBECONFIG = "/root/.kube/config" // helm/kubectl ke liye
     }
 
     triggers {
-         cron('0 8 * * *') // Daily 8 AM deploy
+        cron('0 8 * * *') // Daily 8 AM deploy
     }
 
     stages {
