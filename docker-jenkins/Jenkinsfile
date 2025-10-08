@@ -12,5 +12,6 @@ RUN apt-get update && \
 
 # Jenkins user ko docker group me dalo
 RUN usermod -aG docker jenkins
-
+\
+]'[]'
 USER jenkins
