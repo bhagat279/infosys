@@ -11,7 +11,7 @@ pipeline {
     }
 
     triggers {
-        cron('H 0 8 * * *') // Daily 8 AM deploy
+         cron('0 8 * * *') // Daily 8 AM deploy
     }
 
     stages {
